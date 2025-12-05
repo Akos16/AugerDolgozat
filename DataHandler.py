@@ -1,10 +1,9 @@
 import pandas as pd
 from pathlib import Path
-import re
 
 class DataHandler:
     def __init__(self, data):
-        self.data = data    
+        self.data = data  
     def getData(self):
         file = Path(self.data)
         if not file.exists():

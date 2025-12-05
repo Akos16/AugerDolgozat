@@ -2,11 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import gumbel_r
 from Calculations import Calculaitons
-
-class Gumbel:
-    def __init__(self, data=None):
+from DataHandler import DataHandler
+class Gumbel(DataHandler):
+    def __init__(self, data):
         self.data = np.array(data)
-        self.calc = Calculaitons(self.data)
+        self.calc = Calculaitons(data)
         self.gamma = 0.5772 
         self.loc = None
         self.scale = None

@@ -1,17 +1,12 @@
-from Histogram import Histogram
-from Calculations import Calculaitons
-from DataHandler import DataHandler
-from Distributions import Gumbel
 import matplotlib.pyplot as plt
+from DataHandler import DataHandler
+from Histogram import Histogram
+from Distributions import Gumbel
 
-    
 asd = DataHandler('./data.txt')
-XmaxData = asd.getData()
-
-histogram = Histogram(data=XmaxData, bins=15, range=(min(XmaxData), max(XmaxData)))
-gumbel = Gumbel(XmaxData)
+data_array = asd.getData()  
 
 fig, ax = plt.subplots()
-histogram.plot(ax)
-gumbel.plot(ax)
+Histogram(data_array, bins=15).plot(ax)
+Gumbel(data_array).plot(ax)
 plt.show()

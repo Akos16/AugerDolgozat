@@ -1,6 +1,7 @@
 import numpy as np
-class Calculaitons: 
-    def __init__(self, data=None):
+from DataHandler import DataHandler
+class Calculaitons(DataHandler): 
+    def __init__(self, data):
         self.data = np.array(data)
     def mean(self):
         return np.mean(self.data)

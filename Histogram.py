@@ -1,11 +1,11 @@
 import numpy as np
+from DataHandler import DataHandler
 
-#fit
-class Histogram:
-    def __init__(self, data=None, bins=None, range=None):
-        self.data = np.array(data)
+class Histogram(DataHandler):
+    def __init__(self, data, bins=None):
+        self.data = data
         self.bins = bins
-        self.range = range
+        self.range = (min(self.data), max(self.data))
         self.hist = None
         self.bin_edges = None
     def create(self):
