@@ -6,20 +6,11 @@ class Histogram(DataHandler):
         self.data = data
         self.bins = bins
         self.range = (min(self.data), max(self.data))
-        self.hist = None
-        self.bin_edges = None
-    def create(self):
-        self.hist, self.bin_edges = np.histogram(self.data, bins = self.bins, range = self.range)
-        return self.hist, self.bin_edges
-    def plot(self, ax):
-        ax.hist(
+
+    def get_histogram(self):
+        hist, bin_edges = np.histogram(
             self.data,
             bins=self.bins,
-            range=self.range,
-            histtype='step',
-            color='black',
-            linewidth=2,
-            label='Data histogram'
+            range=self.range
         )
-        ax.legend()
-        return ax
+        return hist, bin_edges, self.range

@@ -3,32 +3,30 @@ import matplotlib.pyplot as plt
 from scipy.stats import gumbel_r
 from Calculations import Calculaitons
 from DataHandler import DataHandler
+from scipy.special import zeta
+
 class Gumbel(DataHandler):
     def __init__(self, data):
         self.data = np.array(data)
         self.calc = Calculaitons(data)
-        self.gamma = 0.5772 
-        self.loc = None
-        self.scale = None
+        self.gamma = 0.5772
 
-    def default_params(self):
+    def gumbel_default_params(self):
         sigma = max(self.calc.std(), 1e-3)
         beta = sigma * np.sqrt(6) / np.pi
         mu = self.calc.mean() - beta * self.gamma
-        self.loc, self.scale = mu, beta
         return mu, beta
 
-    def plot(self, ax, bins=15, range=None, color='red'):
-        if range is None:
-            range = (self.calc.minData(), self.calc.maxData())
-
-        XmaxRange = np.linspace(range[0], range[1], 400)
-        bin_width = (range[1] - range[0]) / bins
-
-        mu, beta = self.default_params()
-        gumbel_pdf = gumbel_r.pdf(XmaxRange, loc=mu, scale=beta)
-        gumbel_scaled = gumbel_pdf * len(self.data) * bin_width
-
-        ax.plot(XmaxRange, gumbel_scaled, color=color, linewidth=2, label='Gumbel')
-        ax.legend()
-        return ax
+    def get_gumbel_pdf(self, x, bins, data_len):
+        mu, beta = self.gumbel_default_params()
+        bin_width = (x[-1] - x[0]) / bins
+        pdf = gumbel_r.pdf(x, loc=mu, scale=beta)
+        return pdf * data_len * bin_width
+    def skewness(self):
+        return 12 * np.sqrt(6) * zeta(3) / np.pi**3
+    def median(self):
+        mu, beta = self.gumbel_default_params()
+        return mu - beta * np.log(np.log(2))
+    def mean_gumbel(self):
+        mu, beta = self.gumbel_default_params()
+        return mu + beta * self.gamma
