@@ -18,9 +18,16 @@ m2 = mtwo / n
 m3 = mthree / n
 m4 = mfour / n
 
+#https://towardsdatascience.com/calculate-skewness-in-python-with-examples-pyshark-b7467dfa166d/
 #Fisher-Pearson coefficient of skewness
 g1 = m3 / (m2 ** 1.5)
 print("Fisher-Pearson coefficient of skewness: ", g1)
 #adjusted Fisher-Pearson coefficient of skewness
 G1 = math.sqrt(n * (n - 1)) / (n-2) * g1
 print("adjusted Fisher-Pearson coefficient of skewness", G1)
+#https://www.macroption.com/kurtosis-formula/
+kurtosis = m4 / (m2**2)
+excess_kurtosis = kurtosis - 3
+
+print("Kurtosis:", kurtosis)
+print("Excess kurtosis:", excess_kurtosis)
