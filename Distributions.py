@@ -1,32 +1,28 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.stats import gumbel_r
-from Calculations import Calculaitons
 from DataHandler import DataHandler
-from scipy.special import zeta
+from Calculations import Calculaitons
 
-class Gumbel(DataHandler):
-    def __init__(self, data):
+class Gumbel():
+    def __init__(self, data, bin_width):
         self.data = np.array(data)
+        self.n = len(self.data)
+        self.bin_width = bin_width
         self.calc = Calculaitons(data)
-        self.gamma = 0.5772
+        self.gamma = 0.5772156649 
 
     def gumbel_default_params(self):
-        sigma = max(self.calc.std(), 1e-3)
+        sigma = max(self.calc.std(), 1e-6)
         beta = sigma * np.sqrt(6) / np.pi
-        mu = self.calc.mean() - beta * self.gamma
+        mu = self.calc.mean() - self.gamma * beta
         return mu, beta
 
-    def get_gumbel_pdf(self, x, bins, data_len):
-        mu, beta = self.gumbel_default_params()
-        bin_width = (x[-1] - x[0]) / bins
+    def model(self, x, mu, beta, a):
         pdf = gumbel_r.pdf(x, loc=mu, scale=beta)
-        return pdf * data_len * bin_width
+        return pdf * a
+
     def skewness(self):
-        return 12 * np.sqrt(6) * zeta(3) / np.pi**3
-    def median(self):
-        mu, beta = self.gumbel_default_params()
-        return mu - beta * np.log(np.log(2))
-    def mean_gumbel(self):
-        mu, beta = self.gumbel_default_params()
-        return mu + beta * self.gamma
+        return self.calc.skewness()
+
+    def kurtosis(self):
+        return self.calc.kurtosis()

@@ -1,33 +1,15 @@
 import numpy as np
-import math
-from scipy.stats import skew
-from scipy.stats import gumbel_r
+from Calculations import Calculaitons
 
-#gumbel adatok
-x1 = gumbel_r.rvs(loc=800, scale=40, size=1000000)
-n = len(x1)
-xMean = np.mean(x1);
-#szoras, skewness, kurtosis
-mtwo = mthree = mfour = m2 = m3 = m4 = 0
-m4 = 0
-for i in x1:
-    mtwo += math.pow(i - xMean, 2)
-    mthree += math.pow(i - xMean, 3)
-    mfour += math.pow(i - xMean, 4)
-m2 = mtwo / n
-m3 = mthree / n
-m4 = mfour / n
+#Test data for skew and kurt
+np.random.seed(42)
+n = 100000
+mu = 0
+sigma = 1
+data = np.random.normal(mu, sigma, n)
 
-#https://towardsdatascience.com/calculate-skewness-in-python-with-examples-pyshark-b7467dfa166d/
-#Fisher-Pearson coefficient of skewness
-g1 = m3 / (m2 ** 1.5)
-print("Fisher-Pearson coefficient of skewness: ", g1)
-#adjusted Fisher-Pearson coefficient of skewness
-G1 = math.sqrt(n * (n - 1)) / (n-2) * g1
-print("adjusted Fisher-Pearson coefficient of skewness", G1)
-#https://www.macroption.com/kurtosis-formula/
-kurtosis = m4 / (m2**2)
-excess_kurtosis = kurtosis - 3
+calc = Calculaitons(data)
 
-print("Kurtosis:", kurtosis)
-print("Excess kurtosis:", excess_kurtosis)
+skew = calc.skewness()
+kurt = calc.kurtosis()
+print(f'Skewness: {skew}, Kurtosis: {kurt}') #Megfelelő adatokat ad vissza

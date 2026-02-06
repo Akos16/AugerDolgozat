@@ -1,6 +1,6 @@
 import pandas as pd
 from pathlib import Path
-
+#https://odp.met.hu/climate/station_data_series/daily/from_1901/mean_temperature/
 class DataHandler:
     def __init__(self, data):
         self.data = data  
@@ -9,8 +9,12 @@ class DataHandler:
         if not file.exists():
             return print("A fájl nem létezik!");
         if(self.data.endswith('.txt') or self.data.endswith('.csv')):
-            df = pd.read_csv(self.data, sep="\s+|;|:|,|\t+", engine="python")
-            return df["Xmax"].to_numpy()
+            df = pd.read_csv(self.data, delim_whitespace=True)
+
+            #df.columns = df.columns.str.strip()
+
+            #return df["Xmax"].to_numpy()
+            return df["Xmax"].to_numpy(), df["Counts"].to_numpy(), df["CountsSqrt"].to_numpy()
         else: 
             return print("Nem megfelelő a fájl kiterjesztése!");
         
