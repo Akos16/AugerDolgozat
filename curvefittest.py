@@ -25,7 +25,7 @@ plt.tight_layout()
 
 filename1 = "./FittingParameters/ParameterNumber_asd.txt"
 with open(filename1, 'w') as f:
-    f.write("lgE\tmu\tmu_err\tbeta\tbeta_err\n")
+    f.write("lgE\tmu\tmu_err\tbeta\tbeta_err\tkurtosis_data\tkurtosis_fit\tskewness_data\tskewsness_fit\n")
 
 for i in range(n_files): 
     filename = f"./XmaxDists/XmaxDist_Ebin{i}.txt"
@@ -73,7 +73,7 @@ for i in range(n_files):
     ax.hist(data, bins, histtype='step', color='black', linewidth=2)
     ax.text(
     0.60, 0.90,
-    f'Skewness = {skew:.2f}\nKurtosis = {kurt:.2f}\nSkewness_fit = {skew_fit:.2f}\nKurtosis_fit = {kurt_fit:.2f}',
+    f'Kurtosis_data = {kurt:.2f}\nKurtosis_fit = {kurt_fit:.2f}\nSkewness_data = {skew:.2f}\nSkewness_fit = {skew_fit:.2f}',
     transform=ax.transAxes,
     verticalalignment='top',
     fontsize = 9
@@ -86,7 +86,7 @@ for i in range(n_files):
     
     #StreamWriter
     with open(filename1, 'a') as f:
-        f.write(f"{E_low:.2f}_{E_high:.2f}\t{popt[0]}\t{perr[0]}\t{popt[1]}\t{perr[1]}\n")
+        f.write(f"{E_low:.2f}_{E_high:.2f}\t{popt[0]}\t{perr[0]}\t{popt[1]}\t{perr[1]}\t{kurt}\t{kurt_fit}\t{skew}\t{skew_fit}\n")
 
 
 
