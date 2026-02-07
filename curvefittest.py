@@ -6,31 +6,30 @@ from DataHandler import DataHandler
 from Histogram import Histogram
 from Distributions import Gumbel
 from main import Ebins
+import os
+folder = "./XmaxDists"  # a mappa elérési útja
+files = [f for f in os.listdir(folder) if f.endswith(".txt")]  # csak .txt fájlok
+n_files = len(files)
+
+print(f"A mappában {n_files} db .txt fájl van.")
+
+
 
 Ebins = Ebins
 bins = 20
-
-
-fig, axes = plt.subplots(2, 4)
+fig, axes = plt.subplots(4, 2)
 axes = axes.flatten()
-
-mng = plt.get_current_fig_manager()
-screen_width, screen_height = mng.window.winfo_screenwidth(), mng.window.winfo_screenheight()
-
-fig_width = screen_width * 0.8 / mng.canvas.figure.dpi  # inch-be átváltva
-fig_height = screen_height * 0.8 / mng.canvas.figure.dpi
+fig_width = 7 
+fig_height = 9  
 fig.set_size_inches(fig_width, fig_height)
+plt.tight_layout()
 
-for i in range(8): 
-    
+for i in range(n_files): 
     filename = f"./XmaxDists/XmaxDist_Ebin{i}.txt"
     Xmax, Counts, CountsSqrt = DataHandler(filename).getData()
     data = np.repeat(Xmax, Counts.astype(int))
     print(data)
-
-
     hist_obj = Histogram(data, bins=bins)
-
     hist, bin_edges, data_range, bin_centers, bin_width = hist_obj.get_histogram()
     #widths = np.diff(bin_edges)
     #hist = hist / (np.sum(hist) * bin_width)
@@ -50,6 +49,9 @@ for i in range(8):
     skew = gumbObj.skewness()
     kurt = gumbObj.kurtosis()
 
+    skew_fit = gumbObj.skewness_fit(mu, beta)
+    kurt_fit = gumbObj.kurtosis_fit(mu, beta)
+
     perr = np.sqrt(np.diag(pcov))
 
     print(f"Optimal parameters: mu = {popt[0]}, beta = {popt[1]}, amplitudo = {popt[2]}")
@@ -68,14 +70,18 @@ for i in range(8):
     ax.hist(data, bins, histtype='step', color='black', linewidth=2)
     ax.text(
     0.60, 0.90,
-    f'Skewness = {skew:.2f}\nKurtosis = {kurt:.2f}',
+    f'Skewness = {skew:.2f}\nKurtosis = {kurt:.2f}\nSkewness_fit = {skew_fit:.2f}\nKurtosis_fit = {kurt_fit:.2f}',
     transform=ax.transAxes,
-    verticalalignment='top'
-)
+    verticalalignment='top',
+    fontsize = 9
+    )
     E_low = Ebins[i]
     E_high = Ebins[i+1]
     ax.set_title(f'Energy: {E_low:.2f} – {E_high:.2f} lg(E/eV)')
-    ax.legend()
-
-plt.tight_layout()
+    ax.legend(fontsize=8)
+    #StreamWriter
+    with open(f"./FittingParameters/ParameterNumber_{i}.txt","w") as f:
+        f.write(f"lgE\tmu\tmu_err\tbeta\tbeta_err\n")
+        f.write(f"{E_low:.2f}_{E_high:.2f}\t{popt[0]}\t{perr[0]}\t{popt[1]}\t{perr[1]}\n")
+plt.tight_layout(pad=2.0)
 plt.show()
