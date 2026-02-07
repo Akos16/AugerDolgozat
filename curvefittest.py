@@ -13,8 +13,6 @@ n_files = len(files)
 
 print(f"A mappában {n_files} db .txt fájl van.")
 
-
-
 Ebins = Ebins
 bins = 20
 fig, axes = plt.subplots(4, 2)
@@ -23,6 +21,11 @@ fig_width = 7
 fig_height = 9  
 fig.set_size_inches(fig_width, fig_height)
 plt.tight_layout()
+
+
+filename1 = "./FittingParameters/ParameterNumber_asd.txt"
+with open(filename1, 'w') as f:
+    f.write("lgE\tmu\tmu_err\tbeta\tbeta_err\n")
 
 for i in range(n_files): 
     filename = f"./XmaxDists/XmaxDist_Ebin{i}.txt"
@@ -79,9 +82,13 @@ for i in range(n_files):
     E_high = Ebins[i+1]
     ax.set_title(f'Energy: {E_low:.2f} – {E_high:.2f} lg(E/eV)')
     ax.legend(fontsize=8)
+    
+    
     #StreamWriter
-    with open(f"./FittingParameters/ParameterNumber_{i}.txt","w") as f:
-        f.write(f"lgE\tmu\tmu_err\tbeta\tbeta_err\n")
+    with open(filename1, 'a') as f:
         f.write(f"{E_low:.2f}_{E_high:.2f}\t{popt[0]}\t{perr[0]}\t{popt[1]}\t{perr[1]}\n")
+
+
+
 plt.tight_layout(pad=2.0)
 plt.show()
