@@ -20,16 +20,21 @@ class Gumbel():
     def model(self, x, mu, beta, a):
         pdf = gumbel_r.pdf(x, loc=mu, scale=beta)
         return pdf * a
-
-    def skewness(self):
+    def moments(self):
+        return self.calc.moments_from_prob()
+    #def skewness(self):
         return self.calc.skewness()
 
-    def kurtosis(self):
+    #def kurtosis(self):
         return self.calc.kurtosis()
+    
+    
     def gumbel_pdf(self, x, mu, beta):
         z = (x - mu) / beta
         return (1.0 / beta) * np.exp(-(z + np.exp(-z)))
 
+
+        
     def skewness_fit(self, mu, beta):
         x = np.linspace(mu - 20*beta, mu + 20*beta, 20000)
         pdf = self.gumbel_pdf(x, mu, beta)

@@ -70,6 +70,8 @@ lge_min = np.amin(unique_xmax_data['fd_avg_lgE'])
 lge_max = np.amax(unique_xmax_data['fd_avg_lgE'])
 print((int(lge_max*10)+1)/10.)
 Ebins = [17.8, 17.9, 18.0, 18.1, 18.2, 18.3, 18.45, 18.8, (int(lge_max*10)+1)/10.]
+#Ebins = [17.8, 17.9, 18.0, 18.1, 18.2, 18.4, (int(lge_max*10)+1)/10.]
+#Ebins = [17.8, 18.2, 18.45, (int(lge_max*10)+1)/10.]
 #Ebins = np.arange(17.8, lge_max + 0.1, 0.1)
 print(f'The minimum energy in this data set is lg(E/eV) = {lge_min:7.2f}.')
 print(f'The maximum energy in this data set is lg(E/eV) = {lge_max:7.2f}.')

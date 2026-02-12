@@ -5,10 +5,11 @@ from scipy.optimize import curve_fit
 from DataHandler import DataHandler
 from Histogram import Histogram
 from Distributions import Gumbel
+from Calculations import Calculaitons
 from main import Ebins
 import os
-folder = "./XmaxDists"  # a mappa elérési útja
-files = [f for f in os.listdir(folder) if f.endswith(".txt")]  # csak .txt fájlok
+folder = "./XmaxDists"  
+files = [f for f in os.listdir(folder) if f.endswith(".txt")]  
 n_files = len(files)
 
 print(f"A mappában {n_files} db .txt fájl van.")
@@ -22,8 +23,27 @@ fig_height = 9
 fig.set_size_inches(fig_width, fig_height)
 plt.tight_layout()
 
+def moments_from_prob(bin_centers, hist_counts):
+    P = hist_counts / np.sum(hist_counts)   
+    n_data = int(np.sum(hist_counts))       
 
-filename1 = "./FittingParameters/ParameterNumber_asd.txt"
+    mean = np.sum(bin_centers * P)
+
+    mu2 = np.sum(((bin_centers - mean) ** 2) * P)
+    mu3 = np.sum(((bin_centers - mean) ** 3) * P)
+    mu4 = np.sum(((bin_centers - mean) ** 4) * P)
+
+    skew = mu3 / mu2**1.5
+    excess_kurt = mu4 / mu2**2 - 3
+
+    skew_err = np.sqrt(6 / n_data)
+    kurt_err = np.sqrt(24 / n_data)
+
+    return mean, mu2, skew, excess_kurt, skew_err, kurt_err
+
+
+
+filename1 = "./FittingParameters/ParameterNumbers.txt"
 with open(filename1, 'w') as f:
     f.write("lgE\tmu\tmu_err\tbeta\tbeta_err\tkurtosis_data\tkurtosis_fit\tskewness_data\tskewsness_fit\n")
 
@@ -34,8 +54,7 @@ for i in range(n_files):
     print(data)
     hist_obj = Histogram(data, bins=bins)
     hist, bin_edges, data_range, bin_centers, bin_width = hist_obj.get_histogram()
-    #widths = np.diff(bin_edges)
-    #hist = hist / (np.sum(hist) * bin_width)
+
     gumbObj = Gumbel(data, bin_width)
     mu, beta = gumbObj.gumbel_default_params()
     x_data=bin_centers
@@ -49,8 +68,7 @@ for i in range(n_files):
     print(popt)
     print(pcov)
 
-    skew = gumbObj.skewness()
-    kurt = gumbObj.kurtosis()
+    mean, var, skew, kurt, skew_err, kurt_err = moments_from_prob(bin_centers, hist)
 
     skew_fit = gumbObj.skewness_fit(mu, beta)
     kurt_fit = gumbObj.kurtosis_fit(mu, beta)
@@ -68,25 +86,26 @@ for i in range(n_files):
     dy = np.sqrt(dy2);
     print(dy)
     ax = axes[i]
-    ax.plot(x_model, y_model, color='red', linewidth=1, label='Gumbel', zorder=5)
+    ax.plot(x_model, y_model, color='red', linewidth=1)
     ax.fill_between(x_model, y_model-dy, y_model+dy)
     ax.hist(data, bins, histtype='step', color='black', linewidth=2)
     ax.text(
     0.60, 0.90,
-    f'Kurtosis_data = {kurt:.2f}\nKurtosis_fit = {kurt_fit:.2f}\nSkewness_data = {skew:.2f}\nSkewness_fit = {skew_fit:.2f}',
+    f'Kurtosis_hist = {kurt:.2f}\nKurtosis_hist_err = {kurt_err:.2f}\nKurtosis_fit = {kurt_fit:.2f}\nSkewness_hist = {skew:.2f}\nSkewness_hist_err = {skew_err:.2f}\nSkewness_fit = {skew_fit:.2f}',
     transform=ax.transAxes,
     verticalalignment='top',
     fontsize = 9
     )
+
     E_low = Ebins[i]
     E_high = Ebins[i+1]
     ax.set_title(f'Energy: {E_low:.2f} – {E_high:.2f} lg(E/eV)')
     ax.legend(fontsize=8)
     
-    
+    E_Avg = (E_low + E_high) / 2
     #StreamWriter
     with open(filename1, 'a') as f:
-        f.write(f"{E_low:.2f}_{E_high:.2f}\t{popt[0]}\t{perr[0]}\t{popt[1]}\t{perr[1]}\t{kurt}\t{kurt_fit}\t{skew}\t{skew_fit}\n")
+        f.write(f"{E_Avg}\t{popt[0]}\t{perr[0]}\t{popt[1]}\t{perr[1]}\t{kurt}\t{kurt_fit}\t{skew}\t{skew_fit}\n")
 
 
 

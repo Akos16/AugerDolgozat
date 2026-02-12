@@ -10,7 +10,7 @@ class Calculaitons(DataHandler):
         return np.min(self.data)
     def maxData(self):
         return np.max(self.data)
-    def skewness(self):
+    #def skewness(self):
         x1 = self.data
         n = len(x1)
         xMean = np.mean(x1)
@@ -23,7 +23,7 @@ class Calculaitons(DataHandler):
         g1 = m3 / (m2 ** 1.5)
         G1 = math.sqrt(n * (n - 1)) / (n-2) * g1
         return G1
-    def kurtosis(self):
+    #def kurtosis(self):
         x1 = self.data
         n = len(x1)
         xMean = np.mean(x1)
