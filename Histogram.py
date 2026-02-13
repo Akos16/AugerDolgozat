@@ -8,12 +8,16 @@ class Histogram(DataHandler):
         self.range = (min(self.data), max(self.data))
         
     def get_histogram(self):
+        bins = np.arange(600, 951, 50)
+
         hist, bin_edges = np.histogram(
             self.data,
-            bins=self.bins,
-            range=self.range,
+            bins=bins,
             density=False
         )
+
         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-        bin_width = bin_edges[1] - bin_edges[0]
-        return hist, bin_edges, self.range, bin_centers, bin_width
+        bin_width = 50
+
+        return hist, bin_edges, (600, 950), bin_centers, bin_width
+
