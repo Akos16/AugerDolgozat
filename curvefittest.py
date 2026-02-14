@@ -42,13 +42,62 @@ def moments_from_prob(bin_centers, hist_counts):
     skew_err = np.sqrt(6 / n_data)
     kurt_err = np.sqrt(24 / n_data)
 
-    return mean, mu2, skew, excess_kurt, skew_err, kurt_err
+    return mean, mu2, skew, excess_kurt
 
 
+def moments_with_errors(x_or_edges, counts, count_err,
+                        ntoy=5000, seed=0):
+    """
+    Returns:
+    mean, mean_err
+    variance, var_err
+    skew, skew_err
+    kurtosis, kurt_err
+    """
 
+    rng = np.random.default_rng(seed)
+
+    counts = np.asarray(counts, float)
+    errs   = np.asarray(count_err, float)
+
+    # ---- baseline values ----
+    mean0, var0, skew0, kurt0 = moments_from_prob(x_or_edges, counts)
+
+    mean_list = []
+    var_list  = []
+    skew_list = []
+    kurt_list = []
+
+    for _ in range(ntoy):
+
+        # Gaussian toy histogram
+        toy = counts + rng.normal(0.0, errs)
+
+        # enforce positivity
+        toy = np.clip(toy, 0.0, None)
+
+        if np.sum(toy) <= 0:
+            continue
+
+        m, v, s, k = moments_from_prob(x_or_edges, toy)
+
+        mean_list.append(m)
+        var_list.append(v)
+        skew_list.append(s)
+        kurt_list.append(k)
+
+    mean_err = np.std(mean_list, ddof=1)
+    var_err  = np.std(var_list,  ddof=1)
+    skew_err = np.std(skew_list, ddof=1)
+    kurt_err = np.std(kurt_list, ddof=1)
+
+    return (mean0, mean_err,
+            var0, var_err,
+            skew0, skew_err,
+            kurt0, kurt_err)
 filename1 = "./FittingParameters/ParameterNumbers.txt"
 with open(filename1, 'w') as f:
-    f.write("lgE\tmu\tmu_err\tbeta\tbeta_err\tskew\tskew_err\tkurt\tkurt_err\tchi2\tndf\tchi2red\n")
+    f.write("lgE\tmean\tmean_err\tvar\tvar_err\tskew\tskew_err\tkurt\tkurt_err\tchi2\tndf\tchi2red\n")
 
 for i in range(n_files): 
     filename = f"./XmaxDists/XmaxDist_Ebin{i}.txt"
@@ -74,8 +123,9 @@ for i in range(n_files):
     #print(popt)
     #print(pcov)
 
-    mean, var, skew, kurt, skew_err, kurt_err = moments_from_prob(Xmax, Counts)
+    #mean, var, skew, kurt, skew_err, kurt_err = moments_from_prob(Xmax, Counts)
     #print(f'Mean: {mean}')
+    mean, mean_err, var, var_err, skew,  skew_err, kurt, kurt_err = moments_with_errors(Xmax, Counts, CountsSqrt)
     #eloszlás, extrémérték eloszlás, dobozos véletlen mindig max és ábrázolás
     #Augernál mi az xmax, mit mér, minek az xmaxot, és hogy ez egy extrém 
     #Tengelyek osszetolása, xmax kell 
@@ -147,9 +197,7 @@ for i in range(n_files):
     E_Avg = (E_low + E_high) / 2
     #StreamWriter
     with open(filename1, 'a') as f:
-        #AvgE, mu, muerr, beta, betaerr, skew, skew_err, kurt, kurt_err, chi2, ndf, chi2red
-        f.write(f"{E_Avg}\t{popt[0]}\t{perr[0]}\t{popt[1]}\t{perr[1]}\t{skew}\t{skew_err}\t{kurt}\t{kurt_err}\t{chi2}\t{ndf}\t{chi2_red}\n")
-
+        f.write(f"{E_Avg}\t{mean}\t{mean_err}\t{np.sqrt(var)}\t{var_err/2./np.sqrt(var)}\t{skew}\t{skew_err}\t{kurt}\t{kurt_err}\t{chi2}\t{ndf}\t{chi2_red}\n")
 
 for i, ax in enumerate(axes):
     row = i // 2
@@ -173,4 +221,5 @@ fig.text(0.04, 0.5, "Counts", va='center', rotation='vertical')
 
 
 fig.subplots_adjust(top=0.99, bottom=0.07, left=0.12, right=0.95)
+plt.savefig("./figs/newest_simpler_curvefit.png")
 plt.show()
