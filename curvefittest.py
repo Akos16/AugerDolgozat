@@ -1,23 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 from scipy.optimize import curve_fit
 from DataHandler import DataHandler
-from Histogram import Histogram
 from Distributions import Gumbel
-from Calculations import Calculaitons
 from main import Ebins
 import os
+
+
 folder = "./XmaxDists"  
 files = [f for f in os.listdir(folder) if f.endswith(".txt")]  
 n_files = len(files)
 
-print(f"A mappában {n_files} db .txt fájl van.")
 
 Ebins = Ebins
 bins = 25
 fig, axes = plt.subplots(4, 2, sharex=True, sharey=True)
-
 axes = axes.flatten()
 fig_width = 7
 fig_height = 9
@@ -102,16 +99,9 @@ with open(filename1, 'w') as f:
 for i in range(n_files): 
     filename = f"./XmaxDists/XmaxDist_Ebin{i}.txt"
     Xmax, Counts, CountsSqrt = DataHandler(filename).getData()
-    #print(Xmax, Counts, CountsSqrt)
-    #data = np.repeat(Xmax, Counts.astype(int))
-    #print(data)
-    #hist_obj = Histogram(data, bins=bins)
-    #hist, bin_edges, data_range, bin_centers, bin_width = hist_obj.get_histogram()
-    #print(hist)
     mu = 700
     beta = 10
     gumbObj = Gumbel()
-    #mu, beta = gumbObj.gumbel_default_params()
     x_data=Xmax
     y_data=Counts
     a = np.max(Counts)
@@ -120,36 +110,22 @@ for i in range(n_files):
     sigma[sigma == 0] = 1.0
     popt, pcov = curve_fit(gumbObj.model, x_data, y_data, p0=[mu, beta, a], sigma=sigma, absolute_sigma=True)
 
-    #print(popt)
-    #print(pcov)
-
-    #mean, var, skew, kurt, skew_err, kurt_err = moments_from_prob(Xmax, Counts)
-    #print(f'Mean: {mean}')
     mean, mean_err, var, var_err, skew,  skew_err, kurt, kurt_err = moments_with_errors(Xmax, Counts, CountsSqrt)
     #eloszlás, extrémérték eloszlás, dobozos véletlen mindig max és ábrázolás
     #Augernál mi az xmax, mit mér, minek az xmaxot, és hogy ez egy extrém 
-    #Tengelyek osszetolása, xmax kell 
     skew_fit, mean1, var1 = gumbObj.skewness_fit(mu, beta)
     kurt_fit = gumbObj.kurtosis_fit(mu, beta)
-    #print(f'Mean: {mean}, {mean1}, Variancia: {var}, {var1}')
+
     perr = np.sqrt(np.diag(pcov))
-    #mu pipa, skewness, kurtosis, variancia, chi2 
-    #print(f"Optimal parameters: mu = {popt[0]}, beta = {popt[1]}, amplitudo = {popt[2]}")
-    #print(f"Standard errors: mu_err = {perr[0]}, beta_err = {perr[1]}, amplitudo_err = {perr[2]}")
 
     mu, beta, a = popt
     x_model = np.linspace(min(x_data), max(x_data), 100)
     y_model = gumbObj.model(x_model, mu, beta, a)
 
-    dy2 = perr[0] + perr[1] + pcov[0][1] + perr[2] + pcov[1][2] + pcov[0][2];
-    dy = np.sqrt(dy2);
-    #print(dy)
+    dy2 = perr[0] + perr[1] + pcov[0][1] + perr[2] + pcov[1][2] + pcov[0][2]
+    dy = np.sqrt(dy2)
     ax = axes[i]
     x, y, yerr = Xmax, Counts, CountsSqrt
-
-    #print(f'Y err: {yerr}')
-    
-
 
     ax.fill_between(x_model, y_model - dy, y_model + dy, alpha=0.3, zorder=1, label='Model uncertainity')
 
@@ -157,15 +133,12 @@ for i in range(n_files):
 
     ax.errorbar(x, y, yerr=yerr, fmt='o', markersize=1, capsize=1, elinewidth=1, color='black', zorder=3, label='Measured data')
     
-
-    
     chi2 = 0
     for y in range(len(y_data)):
         residuals = y_data[y] - gumbObj.model(x_data[y], popt[0], popt[1], popt[2])
         if(yerr[y] > 0):
             chi2 += np.sum((residuals / yerr[y])**2)
         
-
     ndf = len(y_data) - len(popt)
 
     chi2_red = chi2 / ndf
@@ -173,19 +146,9 @@ for i in range(n_files):
     print("ndf =", ndf)
     print("chi2/ndf =", chi2_red)
 
-    '''
-    ax.text(
-    0.60, 0.90,
-    f'Kurtosis_hist = {kurt:.2f}\nKurtosis_hist_err = {kurt_err:.2f}\nKurtosis_fit = {kurt_fit:.2f}\nSkewness_hist = {skew:.2f}\nSkewness_hist_err = {skew_err:.2f}\nSkewness_fit = {skew_fit:.2f}',
-    transform=ax.transAxes,
-    verticalalignment='top',
-    fontsize = 9
-    )
-    '''
     E_low = Ebins[i]
     E_high = Ebins[i+1]
     energy_label = rf"$E_{{\mathrm{{bin}}}} = [{E_low:.2f}, {E_high:.2f})$"
-
 
     ax.legend(
         title=energy_label,
@@ -218,7 +181,6 @@ fig.text(0.525, 0.02, "Xmax (g/cm²)", ha='center')
 
 # Bal oldali y-tengely felirat
 fig.text(0.04, 0.5, "Counts", va='center', rotation='vertical')
-
 
 fig.subplots_adjust(top=0.99, bottom=0.07, left=0.12, right=0.95)
 plt.savefig("./figs/newest_simpler_curvefit.png")
