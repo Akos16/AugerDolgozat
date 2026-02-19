@@ -1,7 +1,5 @@
 import numpy as np
 from scipy.stats import gumbel_r
-from DataHandler import DataHandler
-from Calculations import Calculaitons
 
 class Gumbel():
     def __init__(self):

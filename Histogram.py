@@ -1,11 +1,10 @@
 import numpy as np
 from DataHandler import DataHandler
-
+'''
 class Histogram(DataHandler):
     def __init__(self, data, bins=None):
         self.data = data
         self.bins = bins
-        self.range = (min(self.data), max(self.data))
         
     def get_histogram(self):
         bins = np.arange(600, 951, 50)
@@ -21,3 +20,4 @@ class Histogram(DataHandler):
 
         return hist, bin_edges, (600, 950), bin_centers, bin_width
 
+'''
