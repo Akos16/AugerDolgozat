@@ -157,16 +157,16 @@ for i in range(n_files):
 
     #Modell bizonytalansági sáv, fill_between a görbe körüli dy-t tölti ki
     #0,3 áttetszőség, zorder = kirajzolási sorrend, kisebb háttérben
-    ax.fill_between(x_model, y_model - dy, y_model + dy, alpha=0.3, zorder=1, label='Model uncertainity')
+    ax.fill_between(x_model, y_model - dy, y_model + dy, alpha=0.3, zorder=1, label='Model bizonytalanság')
 
     #Illesztett Gumbel-eloszlás kirajzolása folytonos görbeként
     #Piros szín, 2-es vastagságú vonal, zorder = 2, bizonytalansági sáv fülé kerül
-    ax.plot(x_model, y_model, color='red', linewidth=2, zorder=2, label='Gumbel fit')
+    ax.plot(x_model, y_model, color='red', linewidth=2, zorder=2, label='Gumbel illesztés')
 
     #Mért adatok kirajzolása hibasávokkal
     #Pont jelölés, markersize = kisméretű pontok, capsize = hibavonal végének mérete
     #Elinewidth = hibavonal vastagsága, zorder = 3, legfelül jelenik meg
-    ax.errorbar(x, y, yerr=yerr, fmt='o', markersize=1, capsize=1, elinewidth=1, color='black', zorder=3, label='Measured data')
+    ax.errorbar(x, y, yerr=yerr, fmt='o', markersize=1, capsize=1, elinewidth=1, color='black', zorder=3, label='Mért adat')
     
     #Khi-négyzet inícializálása
     chi2 = 0
@@ -241,10 +241,10 @@ for ax in axes[-2:]:
     ax.set_xticks(np.arange(600, 951, 50))
 
 # Alsó x-tengely felirat kicsit feljebb 
-fig.text(0.525, 0.02, "Xmax (g/cm²)", ha='center')
+fig.text(0.525, 0.02, r"$X_{\mathrm{max}}$ (légköri maximum, g/cm²)", ha='center')
 
 #y-tengely felirat
-fig.text(0.04, 0.5, "Counts", va='center', rotation='vertical')
+fig.text(0.04, 0.5, "Események száma", va='center', rotation='vertical')
 #Margók, felíratok ne lógjanak bele a számokba
 fig.subplots_adjust(top=0.99, bottom=0.07, left=0.12, right=0.95)
 #Ábra mentése a ./figs/ mappába, newest_simpler_curvefit néven, png formátumban
