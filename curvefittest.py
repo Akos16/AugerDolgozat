@@ -28,8 +28,8 @@ def moments_from_prob(bin_centers, hist_counts):
     mu2 = np.sum(((bin_centers - mean) ** 2) * P)
     skew = np.sum(((bin_centers - mean) ** 3) * P)
     kurt = np.sum(((bin_centers - mean) ** 4) * P)
-    skewness = skew / mu**1.5
-    excess_kurt = kurt / mu**2 - 3
+    skewness = skew / mu2**1.5
+    excess_kurt = kurt / mu2**2 - 3
     return mean, mu2, skewness, excess_kurt
 
 
