@@ -24,21 +24,13 @@ plt.tight_layout()
 
 def moments_from_prob(bin_centers, hist_counts):
     P = hist_counts / np.sum(hist_counts)   
-    n_data = int(np.sum(hist_counts))       
-
     mean = np.sum(bin_centers * P)
-
     mu2 = np.sum(((bin_centers - mean) ** 2) * P)
-    mu3 = np.sum(((bin_centers - mean) ** 3) * P)
-    mu4 = np.sum(((bin_centers - mean) ** 4) * P)
-
-    skew = mu3 / mu2**1.5
-    excess_kurt = mu4 / mu2**2 - 3
-
-    skew_err = np.sqrt(6 / n_data)
-    kurt_err = np.sqrt(24 / n_data)
-
-    return mean, mu2, skew, excess_kurt
+    skew = np.sum(((bin_centers - mean) ** 3) * P)
+    kurt = np.sum(((bin_centers - mean) ** 4) * P)
+    skewness = skew / mu**1.5
+    excess_kurt = kurt / mu**2 - 3
+    return mean, mu2, skewness, excess_kurt
 
 
 def moments_with_errors(x_or_edges, counts, count_err,
@@ -121,7 +113,7 @@ for i in range(n_files):
     #popt, illesztett optimális paraméterek
     #pcov, paraméterek kovariancia-mátrixa (ez adja a paraméter hibákat)
     popt, pcov = curve_fit(gumbObj.model, x_data, y_data, p0=[mu, beta, a], sigma=sigma, absolute_sigma=True)
-
+    print(pcov)
     #moments_with_errors() függvény visszatérési értéke, paraméternek a txt oszlopait várja
     #mean = átlag, mean_err = átlag hibája, var = variancia, var_error = variancia hiba
     #skew = ferdeség, skew_err = ferdeség hibája, kurt = csúcsosság, kurt_err = csúcsosság hibája
@@ -144,24 +136,24 @@ for i in range(n_files):
     #Simított ilesztett görbe
     y_model = gumbObj.model(x_model, mu, beta, a)
 
-    #Varianciák és kovarianciák összeadása = modellérték bizonytalanság
-    dy2 = perr[0] + perr[1] + pcov[0][1] + perr[2] + pcov[1][2] + pcov[0][2]
     #teljes bizonytalanság (szórás) a variancia négyzetgyöke
+    dy2 = perr[0]/(popt[0]**2) + perr[1]/(popt[1]**2) + pcov[0][1]/(popt[0]*popt[1]) + perr[2]/(popt[2]**2) + pcov[1][2]/(popt[1]*popt[2]) + pcov[0][2]/(popt[0]*popt[2])  # relativ hiba kiszamitasa a relativ hibak osszeadasaval
+    print(perr[0], perr[1], perr[2], popt[0], popt[1], popt[2], pcov[0][1], pcov[1][2], pcov[0][2])
+    print(dy2)
     dy = np.sqrt(dy2)
-
+    print(dy)
     #jelenlegi sublot, index értéke, az i-ik számú txt-t is jelöli
     ax = axes[i]
-
     #x tengely, y tengely, statisztikai hiba
     x, y, yerr = Xmax, Counts, CountsSqrt
 
     #Modell bizonytalansági sáv, fill_between a görbe körüli dy-t tölti ki
     #0,3 áttetszőség, zorder = kirajzolási sorrend, kisebb háttérben
-    ax.fill_between(x_model, y_model - dy, y_model + dy, alpha=0.3, zorder=1, label='Model bizonytalanság')
+    ax.fill_between(x_model, y_model * (1 - dy), y_model * (1 + dy), alpha=0.5, zorder=1, label='Modell bizonytalanság')
 
     #Illesztett Gumbel-eloszlás kirajzolása folytonos görbeként
     #Piros szín, 2-es vastagságú vonal, zorder = 2, bizonytalansági sáv fülé kerül
-    ax.plot(x_model, y_model, color='red', linewidth=2, zorder=2, label='Gumbel illesztés')
+    ax.plot(x_model, y_model, color='red', linewidth=1, zorder=1, label='Gumbel illesztés')
 
     #Mért adatok kirajzolása hibasávokkal
     #Pont jelölés, markersize = kisméretű pontok, capsize = hibavonal végének mérete
@@ -227,18 +219,18 @@ for i, ax in enumerate(axes):
     col = i % 2
     #A felső sorok esetén elrejtjük az x-tengely számfeliratait, hogy az ábra áttekinthetőbb legyen.
     if row < 3:
-        ax.tick_params(labelbottom=False)
+        ax.tick_params(labelbottom=True)
     #A jobb oldali oszlop esetén elrejtjük a y-tengely számfeliratait, hogy ne ismétlődjenek feleslegesen.
     if col > 0:
-        ax.tick_params(labelleft=False)
+        ax.tick_params(labelleft=True)
 #Az összes subplot x-tengelyének egységes beállítása
 #Az Xmax tartomány 600–950 g/cm² között jelenik meg
 for ax in axes:
-    ax.set_xlim(600, 950)
+    ax.set_xlim(602, 949)
 #Az alsó sor subplotjain az x-tengely osztásközeinek beállítása
 #50 g/cm² lépésközzel jelennek meg a tick-ek
 for ax in axes[-2:]:
-    ax.set_xticks(np.arange(600, 951, 50))
+    ax.set_xticks(np.arange(600, 950, 50))
 
 # Alsó x-tengely felirat kicsit feljebb 
 fig.text(0.525, 0.02, r"$X_{\mathrm{max}}$ (légköri maximum, g/cm²)", ha='center')
@@ -248,6 +240,6 @@ fig.text(0.04, 0.5, "Események száma", va='center', rotation='vertical')
 #Margók, felíratok ne lógjanak bele a számokba
 fig.subplots_adjust(top=0.99, bottom=0.07, left=0.12, right=0.95)
 #Ábra mentése a ./figs/ mappába, newest_simpler_curvefit néven, png formátumban
-plt.savefig("./figs/newest_simpler_curvefit.png")
+plt.savefig("./figs/newest_simpler_curvefit.pdf")
 #Ábra megjelenítése
 plt.show()
