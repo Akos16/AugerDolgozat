@@ -241,5 +241,6 @@ fig.text(0.04, 0.5, "Események száma", va='center', rotation='vertical')
 fig.subplots_adjust(top=0.99, bottom=0.07, left=0.12, right=0.95)
 #Ábra mentése a ./figs/ mappába, newest_simpler_curvefit néven, png formátumban
 plt.savefig("./figs/newest_simpler_curvefit.pdf")
+plt.savefig("./figs/newest_simpler_curvefit.jpg")
 #Ábra megjelenítése
 plt.show()
